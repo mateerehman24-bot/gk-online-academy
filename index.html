@@ -685,7 +685,28 @@ function clearTestForm(){
 
 function esc(s){
   return String(s||"").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}     function parseFlexibleMCQs(rawText) {
+        let lines = rawText.split('\n');
+        let questions = [];
+        let currentQ = null;
+
+        lines.forEach(line => {
+            line = line.trim();
+            if (!line) return;
+
+            if (/^\d+[\.\-]\s*/.test(line)) {
+                if (currentQ) questions.push(currentQ);
+                currentQ = { question: line, options: [], correct: null };
+            } else if (currentQ) {
+                let isCorrect = line.includes('#');
+                let cleanText = line.replace(/#+/g, '').trim();
+                currentQ.options.push({ text: cleanText, correct: isCorrect });
+            }
+        });
+        if (currentQ) questions.push(currentQ);
+        return questions;
 }
+  
 </script>
 </body>
 </html>
